@@ -1,0 +1,34 @@
+<?php
+
+class Messages_model extends CI_Model{
+
+	public function send_message(){
+		$message_insert_data = array(
+			'sender_name' => $this->session->userdata('family_name'),
+			'reciever_name' => $this->input->post('reciever_name'),
+			'subject' => $this->input->post('subject'),
+			'body' => $this->input->post('body')
+		);
+
+		return($this->db->insert('message', $message_insert_data));
+	}
+
+	public function inbox_pagination($limit, $offset, $sort = 'sent_date', $order = 'desc'){
+		$this->db->where('reciever', $this->session->userdata('family_name'));
+		$this->db->select('sender_name, sent_date, subject, body, id');
+		$this->db->order_by($sort, $order);
+		$this->db->limit($limit);
+		$data['messages'] = $this->db->get('message', $per_page, $offset);
+
+		$this->db->where('reciever', $this->session->userdata('family_name'));
+		$data['total_rows'] = $this->db->get('message')->num_rows();
+
+		return($data);
+	}
+
+	public function remove_messages($messages){
+//		foreach($messages as $msg):
+					
+	}
+
+}

@@ -1,0 +1,21 @@
+<?php
+
+class Messages_model extends CI_Model{
+
+	function view_all_messages($table){
+		$this->db->where('id', $this->session->userdata('family_id'));
+		$query = $this->db->get($table);
+		return($query);
+	}
+
+	function send_message(){
+		$message_insert_data = array(
+			'sender_name' => $this->session->userdata('family_name'),
+			'reciever_name' => $this->input->post('reciever_name'),
+			'subject' => $this->input->post('subject'),
+			'body' => $this->input->post('body')
+		);
+
+		return($this->db->insert('messages', $message_insert_data));
+	}
+}
