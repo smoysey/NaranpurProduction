@@ -12,7 +12,7 @@
 	</div>
 
 	<div class="control-group">
-		<input id="sellQuantitySelectBox" name="sellQuantity" type="number" name="sell_quantity" min="1" max="<?=$sell_inventory->row()->quantity;?>" step='1' value="1"/>
+		<input id="sellQuantitySelectBox" name="sellQuantity" type="number" min="1" max="<?=$sell_inventory->row()->quantity;?>" step='1' value="1"/>
 	</div>
 
 	<div class="control-group">

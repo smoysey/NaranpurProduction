@@ -1,4 +1,3 @@
-<script src="<?php echo base_url();?>/application/includes/js/raphael.js"></script>
 <form id="feed_policy">
 
 	<select id="animalSelect" name="animal_id">

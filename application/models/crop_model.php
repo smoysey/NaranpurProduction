@@ -48,4 +48,14 @@ class Crop_model extends CI_Model{
 		"));
 	}
 
+	function get_all_planted_crops($family_name){
+		$query = $this->db->query("
+			SELECT crop.*
+			FROM crop
+			LEFT JOIN lmu ON lmu.id = crop.lmu_id
+			WHERE lmu.family_name = '$family_name' 
+		");
+		return($query);
+	}
+
 }

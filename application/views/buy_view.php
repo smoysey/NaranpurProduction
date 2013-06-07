@@ -1,4 +1,4 @@
-<form id="buy_form" class="horizontal" action="<?php echo site_url();?>/store/buy" method="POST"> 
+<form id="buy_form" class="horizontal" action="<?php echo site_url("/store/buy");?>" onsubmit="return(buyCal());"method="POST"> 
 
 	<div class="control-group">
 		<select id="buyItemSelect" name="buyItem">
@@ -12,11 +12,11 @@
 	</div>
 
 	<div id="quantity_box" class="control-group">
-		<input id="buyQuantitySelectBox" name="buyQuantity" type="number" name="buyQuantity" min="1" max="<?=$buy_inventory->row()->quantity;?>" step='1' value="1"/>
+		<input id="buyQuantitySelectBox" type="number" name="buyQuantity" min="1" max="<?=$buy_inventory->row()->quantity;?>" step='1' value="1"/>
 	</div>
 
 	<div class="control-group">
-		<a class="btn btn-primary" href="javascript: checkCash()">Buy</a>
+		<button class="btn btn-primary">Buy</button>
 	</div>
 
 	<div class="control-group">
@@ -36,25 +36,27 @@
 </div> 
 
 <script>
-var price = $('#buyItemSelect option:selected').data('price');
-var quantity = 1;
+var buyPrice = $('#buyItemSelect option:selected').data('price');
+var buyQuantity = 1;
 buyCal();
 
 //Set up the on-click for the buttons that select the items
 $('#buyItemSelect').change(function () {
+	$('#error').hide();
 	$('#buyQuantitySelectBox').val(1);
 	$('#buyQuantitySelectBox').attr("max", $('option:selected', this).data('quantity'));
-	price = $('option:selected', this).data('price'); 
-	quantity = 1;
+	buyPrice = $('option:selected', this).data('price'); 
+	buyQuantity = 1;
 
-	if(price == null) price = 0;
+	if(buyPrice == null) buyPrice = 0;
 
 	buyCal();
 });
 
 //Set up the on-click for the buttons that select the items
 $('#buyQuantitySelectBox').change(function () {
-	quantity = $(this).val();
+	$('#error').hide();
+	buyQuantity = $(this).val();
 	buyCal();
 });
 
@@ -63,28 +65,21 @@ function buyCal(){
 	var buyAvailable = document.getElementById("buyAvailable");
 	var buyCost = document.getElementById("buyCost");
 
-	buyCost.value =  "Price: $" + (price * quantity);
-	buyAvailable.value = cash - (price * quantity);
+	buyCost.value =  "Price: $" + (buyPrice * buyQuantity);
+	buyAvailable.value = cash - (buyPrice * buyQuantity);
 	buyAvailable.value = "Updated Cash: $" + buyAvailable.value;
 
-	if(cash - (price * quantity) > 0){
+	if(cash - (buyPrice * buyQuantity) > 0){
+		$('#error').hide();
 		$('#quantity_box').removeClass("error");
 		return(true);
 	}
 	else{
 		$('#quantity_box').addClass("error");
-		return(false);
-	}
-}
-
-function checkCash(){
-	if(buyCal())	$('#buy_form').submit();
-	else{
 		$('#error_message').text("You do not have the funds to buy this.");
 		$('#error').show();
 		return(false);
 	}
 }
-
 
 </script>

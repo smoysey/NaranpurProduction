@@ -30,6 +30,76 @@ class Family extends CI_Controller {
 		echo json_encode($result);
 	}
 
+	function get_status(){
+		$this->load->model('family_model');
+		$this->load->model('crop_model');
+		$this->load->model('lmu_model');
+		$this->load->model('water_model');
+		$this->load->model('animal_model');
+		$family_name = $this->session->userdata('family_name');
+
+		$family_query = $this->family_model->get_members($family_name);
+		$crop_query = $this->crop_model->get_all_planted_crops($family_name);
+		$water_query = $this->water_model->get_family_water($family_name);
+		$well_query = $this->water_model->get_family_well_water($family_name);
+		$animal_query = $this->animal_model->get_family_animals($family_name);
+
+		$num_members = $family_query->num_rows();
+
+		$available_labor = 0;
+		$used_labor = 0;
+		$grain = $num_members * 300;
+		$milk = $num_members * 50;
+		$used_water = $num_members * 8;
+		$available_water = 0;
+
+		foreach($water_query->result() as $row){
+			$available_water += $row->rate * $row->hours;
+			$used_labor += $row->hours / 10;
+		}
+
+		foreach($well_query->result() as $row){
+			$available_water += $row->pumpingRate * $row->hours;
+			$used_labor += $row->hours / 10;
+		}
+
+		foreach($crop_query->result() as $row){
+			$acres = $this->lmu_model->get_acres($row->lmu_id);
+			if($row->irrigation){
+				$used_water += $acres * $row->land_percentage * 50 / 100;
+			}
+			if($row->collect_seeds){
+				$used_labor += $acres * $row->land_percentage / 100 * .5;
+			}
+			$used_labor += $acres * $row->land_percentage / 100;
+		}
+
+		foreach($animal_query->result() as $row){
+			$used_labor += $row->quantity * .5;
+			if($row->manure)	$used_labor += $row->quantity * .5;
+		}
+
+		foreach($family_query->result() as $row){
+			if($row->age > 12 && $row->age < 16){
+				$available_labor += .5 * $row->health / 100;
+			}
+			else if($row->age > 16){
+				$available_labor +=  $row->health / 100;
+			}
+		}
+
+		$status = array(
+			'grain' => $grain,
+			'milk' => $milk,
+			'used_water' => $used_water,
+			'available_water' => $available_water,
+			'used_labor' => $used_labor,
+			'available_labor' => $available_labor
+		);
+
+		echo json_encode($status);
+	}
+
 	function get_date(){
 		$this->load->model('family_model');
 		$query = $this->family_model->get_date();

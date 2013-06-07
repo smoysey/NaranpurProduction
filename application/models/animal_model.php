@@ -35,6 +35,19 @@ class Animal_model extends CI_Model{
 		return($this->db->get('feed_method'));
 	}
 
+	function get_family_animals($family_name){
+		$query = $this->db->query("
+			SELECT inventory.quantity, resource.id as resource_id, resource.name, animal_policy.collect_manure as manure
+			FROM inventory
+			LEFT JOIN animal_policy ON animal_policy.animal_id = inventory.resource_id
+			LEFT JOIN resource ON resource.id = inventory.resource_id
+			WHERE inventory.family_name = '$family_name'
+			AND resource.category = 'Livestock'
+			AND animal_policy.family_name = '$family_name'
+		");
+		return($query);
+	}
+
 	function update_animal_policy($family_name, $animal_id, $feed_method_id){
 		$this->db->where('family_name', $family_name);
 		$this->db->where('animal_id', $animal_id);

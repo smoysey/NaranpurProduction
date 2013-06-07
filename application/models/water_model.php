@@ -18,6 +18,27 @@ class Water_model extends CI_Model{
 		return($query);
 	}
 
+	function get_family_water($family_name){
+		$query = $this->db->query("
+			SELECT *
+			FROM water_method
+			LEFT JOIN water_decision ON water_method.id = water_decision.water_method_id
+			WHERE water_decision.family_name = '$family_name'
+		");
+		return($query);
+	}
+
+	function get_family_well_water($family_name){
+		$query = $this->db->query("
+			SELECT *
+			FROM well_type
+			LEFT JOIN well ON well.well_type_id = well_type.id
+			LEFT JOIN lmu ON well.lmu_id = lmu.id
+			WHERE lmu.family_name = '$family_name'
+		");
+		return($query);
+	}
+
 	function update_method($family_name, $method_id, $hours){
 		$this->db->where('family_name', $family_name);
 		$this->db->where('water_method_id', $method_id);

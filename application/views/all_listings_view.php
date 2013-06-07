@@ -32,7 +32,9 @@
 	<?php } ?>
 
 	<li class="pull-right">
-		<a href="<?php echo site_url();?>/listing/load_create_listing" class="btn">Create a Listing</a>
+		<a href="#create_listing_modal" role="button" class="btn" data-toggle="modal">
+			Create a Listing
+		</a>
 	</li>
 
 </ul>
@@ -93,3 +95,5 @@
 </div>
 </div>
 </div>
+
+<?php $this->load->view('create_listing_view'); ?>

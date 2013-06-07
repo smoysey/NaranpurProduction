@@ -14,7 +14,7 @@ class Inventory_model extends CI_Model{
 																			resource.sellPrice as sellPrice, 
 																			resource.buyPrice as buyPrice, 
 																			resource.id as id, 
-																			resource.category as cat, 
+																			resource.category as category, 
 																			inventory.quantity as quantity
 															 FROM resource
 															 INNER JOIN inventory
@@ -31,12 +31,13 @@ class Inventory_model extends CI_Model{
 																			resource.sellPrice as sellPrice, 
 																			resource.buyPrice as buyPrice, 
 																			resource.id as id, 
+																			resource.category as category, 
 																			inventory.quantity as quantity
 															 FROM resource
 															 INNER JOIN inventory
 															 ON resource.id = inventory.resource_id
 															 WHERE inventory.family_name = '$family_name'
-															 ORDER BY name
+															 ORDER BY category, name
 														 ");
 		return($query);
 	}
@@ -60,6 +61,18 @@ class Inventory_model extends CI_Model{
 			return($this->add_resource($resource_id, $family_name, $quantity));
 		}
 		else if(($query->row()->quantity + $quantity) == 0){
+			$this->db->where('id', $resource_id);
+			$res_query = $this->db->get('resource');
+			if($res_query->row()->category == 'Livestock'){
+				$this->db->where('family_name', $family_name);
+				$this->db->where('animal_id', $resource_id);
+				$this->db->delete('animal_policy');	
+				if($resource_id == 13){
+					$this->db->where('family_name', $family_name);
+					$this->db->where('water_method_id', 2);
+					$this->db->delete('water_decision');	
+				}
+			}
 			return($this->remove_resource($resource_id, $family_name));
 		}
 		else{

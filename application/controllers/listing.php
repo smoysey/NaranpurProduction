@@ -26,6 +26,8 @@ class Listing extends CI_Controller{
 		$data['next'] = $offset + 10;
 		$data['res_id'] = $resource_id;
 		$data['resources'] = $this->inventory_model->get_store_inventory();
+		$family_name = $this->session->userdata('family_name');
+		$data['listing_inventory'] = $this->inventory_model->get_sell_inventory($family_name);
 		$data['content'] = 'all_listings_view';
 		$this->load->view('includes/template', $data);
 	}
@@ -45,6 +47,7 @@ class Listing extends CI_Controller{
 		$data['next'] = $offset + 10;
 		$data['res_id'] = $resource_id;
 		$data['resources'] = $this->inventory_model->get_store_inventory();
+		$data['listing_inventory'] = $this->inventory_model->get_sell_inventory($family_name);
 		$data['content'] = 'all_listings_view';
 		$this->load->view('includes/template', $data);
 	}
@@ -92,15 +95,6 @@ class Listing extends CI_Controller{
 			redirect('listing');
 		}
 		else echo "Database Error";
-	}
-
-
-	function load_create_listing(){
-		$this->load->model("inventory_model");
-		$family_name = $this->session->userdata('family_name');
-		$data['listing_inventory'] = $this->inventory_model->get_sell_inventory($family_name);
-		$data['content'] = 'create_listing_view';
-		$this->load->view('includes/template', $data);
 	}
 
 	function create_listing(){

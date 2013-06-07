@@ -9,11 +9,14 @@
 </select>
 
 <div id="body" style="display:none;">
-	<ul class="nav nav-list">
-		<li id="method" class="nav-header"></li>
-	  <li id="hours" class="nav-header">Current Hours</li>
- 	 	<li id="rate" class="nav-header">Current Yield</li>
-	</ul>
+	<dl class="dl-horizontal">
+		<dt>Collecting Method:</dt>
+		<dd id="method"></dd>
+		<dt>Collecting Hours:</dt>
+	  <dd id="hours"></dd>
+		<dt>Collecting Yield:</dt>
+ 	 	<dd id="rate"></dd>
+	</dl>
 
 	<hr/>
 
@@ -49,10 +52,10 @@
 
 </div>
 
-<div id="error" class="alert alert-blocki alert-error" style="display:none;">  
-  <a class="close" onclick="$('#error').hide()">X</a>  
+<div id="water-error" class="alert alert-block alert-error" style="display:none;">  
+  <a class="close" onclick="$('#error').hide();">X</a>  
   <h4 class="alert-heading">Error!</h4>  
-	<p id="error_message"></p>
+	<p id="water_error_message"></p>
 </div> 
 
 <script>
@@ -64,12 +67,12 @@ $('#methodSelect').change(function () {
 		$('#error').hide();
 	}
 	else if($('#methodSelect option:selected').val() == 3){
-		$('#error').hide();
+		$('#water-error').hide();
 		update_well();
 	}
 	else{
 		update();
-		$('#error').hide();
+		$('#water-error').hide();
 		$('#body').show();
 	}
 });
@@ -97,7 +100,7 @@ $('#button').click(function () {
 		};
   	$.ajax({
     	type: "POST",
-	    url: "<?=site_url()?>/water/update_method",
+	    url: "<?=site_url("/water/update_method")?>",
 			data: post,
 	    dataType: "json",
 			success: function(data){
@@ -108,10 +111,10 @@ $('#button').click(function () {
 });
 
 $('#buy_well').click(function () {
-	$('#error').hide();
+	$('#water-error').hide();
 	if(well == $('#well_select option:selected').val()){
-		$('#error_message').text("The well is already of this type.");
-		$('#error').show();
+		$('#water_error_message').text("The well is already of this type.");
+		$('#water-error').show();
 	}
 	else{
 	  var post = {
@@ -121,7 +124,7 @@ $('#buy_well').click(function () {
 		};
 		$.ajax({
 			type: "POST",
-	 	  url: "<?=site_url()?>/water/buy_well",
+	 	  url: "<?=site_url("/water/buy_well")?>",
 	    data: post,
 	    dataType: "json",
 	    success: function(data){
@@ -129,8 +132,8 @@ $('#buy_well').click(function () {
 					update_well();
 				}
 				else{
-					$('#error_message').text("You do not have the funds to upgrade to this well");
-					$('#error').show();
+					$('#water_error_message').text("You do not have the funds to upgrade to this well");
+					$('#water-error').show();
 				}
  	   }
 	  });
@@ -140,15 +143,15 @@ $('#buy_well').click(function () {
 function update(){
 	$.ajax({
     type: 'POST',
-    url: '<?=site_url()?>/water/get_method',
+    url: '<?=site_url("/water/get_method")?>',
     data: 'method_id=' + $('#methodSelect option:selected').val(),
     dataType: 'json',
     success: function(data){
 			$('#update_well').hide();
 			$('#method').text(data[0].method);
-			$('#hours').text('Hours: ' + data[0].hours);
+			$('#hours').text(data[0].hours);
 			var rate = data[0].hours * data[0].rate;
-			$('#rate').text('Current Water Yield: ' + rate);
+			$('#rate').text(rate);
     }
   });
 }
@@ -156,7 +159,7 @@ function update(){
 function update_well(){
 	$.ajax({
     type: 'POST',
-    url: '<?=site_url()?>/water/get_well',
+    url: '<?=site_url("/water/get_well")?>',
     data: 'lmu_id=<?=$lmu_id?>',
     dataType: 'json',
     success: function(data){
