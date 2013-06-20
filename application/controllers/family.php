@@ -30,6 +30,39 @@ class Family extends CI_Controller {
 		echo json_encode($result);
 	}
 
+	function get_updates(){
+		$this->load->model('update_model');
+		$family_name = $this->session->userdata('family_name');
+
+		$row = $this->update_model->get_updates($family_name)->row();
+
+		echo json_encode(array('mess' => $row->mess, 
+													 'bid' => $row->bid, 
+													 'win' => $row->win, 
+													 'notif' => $row->notif));
+	}
+
+
+	function get_notifications(){
+		$this->load->model('update_model');
+		$family_name = $this->session->userdata('family_name');
+		$this->update_model->clear_updates($family_name, 'notif');
+
+		$family_name = $this->session->userdata('family_name');
+		$this->load->model('notifications_model');
+		$nots = $this->notifications_model->get_notifications($family_name);
+		$this->notifications_model->clear_notifications($family_name);
+		$prefs = $this->notifications_model->get_preferences($family_name);
+		echo json_encode(array('nots' => $nots->result_array(), 'prefs' => $prefs->result_array()));
+	}
+
+	function delete_notification(){
+		$this->load->model('notifications_model');
+		$id = $this->input->post('id');
+		$return = $this->notifications_model->delete_notification($id);
+		echo json_encode(array('success' => $return));
+	}
+
 	function get_status(){
 		$this->load->model('family_model');
 		$this->load->model('crop_model');

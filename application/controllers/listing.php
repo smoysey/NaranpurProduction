@@ -15,6 +15,11 @@ class Listing extends CI_Controller{
 	function view_all_listings($resource_id = -1, $offset = 0){
 		$this->load->model("listing_model");
 		$this->load->model("inventory_model");
+
+		$this->load->model('update_model');
+		$family_name = $this->session->userdata('family_name');
+		$this->update_model->clear_updates($family_name, 'bid');
+
 		if($resource_id == -1){
 			$data['listings'] = $this->listing_model->get_all_listings($offset);
 		}
@@ -92,6 +97,10 @@ class Listing extends CI_Controller{
 		$message = $this->input->post('message');
 
 		if($this->bid_model->create_bid($resource_id, $quantity, $listing_id, $family_name, $message)){
+			$this->load->model('listing_model');
+			$this->load->model('update_model');
+			$seller = $this->listing_model->get_seller($listing_id);
+			$this->update_model->create_notification($seller, 'bid');
 			redirect('listing');
 		}
 		else echo "Database Error";
@@ -157,6 +166,10 @@ class Listing extends CI_Controller{
 			$this->listing_model->end_listing($listing->row()->id, 0);
 			$this->load->model('transaction_model');
 			$this->transaction_model->create_transaction($listing_id, $bid_id);
+
+			$this->load->model('update_model');
+			$this->update_model->create_notification($bid->row()->family_name, 'win');
+
 			redirect('listing');
 		}
 

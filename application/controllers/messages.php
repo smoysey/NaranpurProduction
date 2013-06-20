@@ -14,6 +14,9 @@ class Messages extends CI_Controller{
 	}
 
 	function inbox($sort_by = 'sent_date', $sort_order = 'desc', $offset = 0){
+		$this->load->model('update_model');
+		$family_name = $this->session->userdata('family_name');
+		$this->update_model->clear_updates($family_name, 'mess');
 		$this->box_pag($sort_by, $sort_order, $offset, 'inbox');
 	}
 	
@@ -65,7 +68,17 @@ class Messages extends CI_Controller{
 		if($this->form_validation->run()){
 			$this->load->model('messages_model');
 
-			if($this->messages_model->send_message()){
+			$sender_name = $this->session->userdata('family_name');
+			$reciever_name = $this->input->post('reciever_name');
+			$subject = $this->input->post('subject');
+			$body = $this->input->post('body');
+
+			if($this->messages_model->send_message($sender_name,
+																						 $reciever_name,
+																						 $subject,
+																						 $body)){
+				$this->load->model('update_model');
+				$this->update_model->create_notification($reciever_name, 'mess');
 				redirect('messages');
 			}
 			else{	echo "Send Error.";	}

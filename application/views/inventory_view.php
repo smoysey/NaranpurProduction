@@ -1,39 +1,9 @@
 <div id="inventoryModal" class="modal hide fade">
-  <div class="modal-header">
+  <div class="modal-body">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
     <h3>Inventory</h3>
-  </div>
-
-  <div class="modal-body">
-		<ul class="unstyled">
-			<ul class="unstyled inline text-center">
-				<li><strong>Labor:</strong></li>
-				<li id="lu" class="text-error"></li>
-				<li><strong>/</strong></li>
-				<li id="la" class="text-success"></li>
-				<li><strong>Water:</strong></li>
-				<li id="wu" class="text-error"></li>
-				<li><strong>/</strong></li>
-				<li id="wa" class="text-success"></li>
-			</ul>
-			<ul class="unstyled inline text-center">
-				<li><strong>Grain Required:</strong></li>
-				<li id="gr" class="text-error"></li>
-				<li><strong>Milk Required:</strong></li>
-				<li id="mr" class="text-error"></li>
-			</ul>
-		</ul>
-
-		<table class="table table-striped">
-			<thead>
-				<tr>
-					<th>Resource</th>
-					<th>Category</th>
-					<th>Quantity</th>
-				</tr>
-			</thead>
-			<tbody id="inventory">
-			</tbody>
+		<table class="table table-condensed">
+			<tbody id="inventory"></tbody>
 		</table>
   </div>
 </div>
@@ -41,7 +11,7 @@
 
 <script>
 
-  $('#modalLink').click(function () 
+  $('#inventoryLink').click(function () 
   {
     $.ajax({
       url: "<?=site_url()?>/family/get_inventory", 
@@ -49,26 +19,18 @@
 			dataType: 'json',
       success: function(data)
       {
+				var cat = "";
+				var color = 0;
 				$('#inventory').empty();
 				for(var i = 0; i < data.length; i++){
-        	var resource = $('<tr><td>' + data[i].name + '</td><td>' + data[i].category + '</td><td>' + data[i].quantity + '</td></tr>');
+					if(data[i].category != cat){
+						$('#inventory').append('<tr><th>' + data[i].category + '<i class="icon-leaf pull-right"></i></th><th></th><th><i class="icon-plus-sign pull-left"></i></th></tr>');
+						cat = data[i].category;
+					}
+
+        	var resource = $('<tr><td style="text-align:right;">' + data[i].name + '</td><td style="text-align:center">-</td><td style="text-align:left;">' + data[i].quantity + '</td></tr>');
 					$('#inventory').append(resource);
 				}
-      } 
-    });
-
-    $.ajax({
-      url: "<?=site_url()?>/family/get_status", 
-      data: "",
-			dataType: 'json',
-      success: function(data)
-      {
-				$('#gr').text(data.grain);
-				$('#mr').text(data.milk);
-				$('#wu').text(data.used_water);
-				$('#wa').text(data.available_water);
-				$('#lu').text(data.used_labor);
-				$('#la').text(data.available_labor);
       } 
     });
 

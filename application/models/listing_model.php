@@ -115,5 +115,9 @@ class Listing_model extends CI_Model{
 		$this->db->update('listing', $data); 
 	}
 
+	function get_seller($listing_id){
+		$this->db->where('id', $listing_id);
+		return($this->db->get('listing')->row()->family_name);
+	}
 	
 }

@@ -2,12 +2,15 @@
 
 class Messages_model extends CI_Model{
 
-	function send_message(){
+	function send_message($sender_name,
+												$reciever_name,
+												$subject,
+												$body){
 		$message_insert_data = array(
-			'sender_name' => $this->session->userdata('family_name'),
-			'reciever_name' => $this->input->post('reciever_name'),
-			'subject' => $this->input->post('subject'),
-			'body' => $this->input->post('body')
+			'sender_name' => $sender_name,
+			'reciever_name' => $reciever_name,
+			'subject' => $subject,
+			'body' => $body
 		);
 
 		return($this->db->insert('message', $message_insert_data));

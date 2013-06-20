@@ -17,6 +17,11 @@ class Transaction extends CI_Controller{
 		$this->load->model("listing_model");
 		$this->load->model("bid_model");
 		$this->load->model("inventory_model");
+
+		$this->load->model('update_model');
+		$family_name = $this->session->userdata('family_name');
+		$this->update_model->clear_updates($family_name, 'win');
+
 		if($resource_id == -1) $trans = $this->transaction_model->get_all_transactions($offset);
 		else $trans = $this->transaction_model->get_specific_transactions($resource_id, $offset);
 

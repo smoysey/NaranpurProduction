@@ -19,9 +19,10 @@ class Crop_model extends CI_Model{
 
 	function get_planted_crops($lmu_id){
 		$query = $this->db->query("
-			SELECT crop.*, available_crop.*
+			SELECT crop. * , available_crop. * , resource.name
 			FROM crop
-			JOIN available_crop ON available_crop.id = crop.crop_id
+			LEFT JOIN available_crop ON available_crop.id = crop.crop_id
+			LEFT JOIN resource ON available_crop.resource_id = resource.id
 			WHERE crop.lmu_id = $lmu_id
 		");
 
@@ -30,13 +31,15 @@ class Crop_model extends CI_Model{
 
 	function get_available_crops($lmu_id){
 		return($this->db->query("
-			SELECT  *
+			SELECT available_crop. * , resource.name
 			FROM available_crop
-			WHERE id NOT IN (
+			LEFT JOIN resource ON resource.id = available_crop.resource_id
+			WHERE available_crop.id NOT 
+			IN (
 				SELECT crop_id
 				FROM crop
-				WHERE lmu_id = $lmu_id
-				)
+				WHERE lmu_id =26
+			)
 			"));
 	}
 
