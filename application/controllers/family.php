@@ -171,18 +171,14 @@ class Family extends CI_Controller {
 		if($this->form_validation->run()){
 			$this->load->model('family_model');
 			if($this->family_model->create_family()){
-				$data['content'] = 'success';
-				$data['message'] = 'Success!  Thank you for creating an account, please follow the link below to login.';
-				$data['url'] = site_url("family/login");
-				$data['button'] = "Login";
-				$this->load->view('includes/template', $data);
+				echo json_encode(array('success' => 1, 'message' => 'Database Error Please Try Again.')); 
 			}
-			else echo "Database Error!!!";
+			else{ 
+				echo json_encode(array('success' => 0, 'message' => 'Database Error Please Try Again.')); 
+			}
 		}
 		else{
-			$data['content'] = 'error';
-			$data['url'] = site_url("family/signup");;
-			$this->load->view('includes/template', $data);
+				echo json_encode(array('success' => 0, 'message' => validation_errors())); 
 		}
 	}
 
