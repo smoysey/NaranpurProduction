@@ -43,23 +43,25 @@ class Animal extends CI_Controller{
 	}
 
 	function toggle_manure(){
-		$this->load->library('form_validation');
+		$this->load->model('animal_model');
+		$family_name = $this->session->userdata('family_name');
+		$animal_id = $this->input->post('animal_id');
+		$manure = $this->input->post('manure');
 
-		$this->form_validation->set_rules('manure', 'Manure', 'trim|required');
+		$this->animal_model->toggle_manure($family_name, $animal_id, $manure);
 
-		if($this->form_validation->run()){
-			$this->load->model('animal_model');
+		if($this->animal_model->get_manure($family_name, $animal_id)){
+			$this->load->model('family_model');
+			$labor = $this->family_model->get_labor();
 
-			$family_name = $this->session->userdata('family_name');
-			$animal_id = $this->input->post('animal_id');
-			$manure = $this->input->post('manure');
-
-			$manure = ($manure == 0) ? 1 : 0;
-			$this->animal_model->update_manure($family_name, $animal_id, $manure);
-			echo json_encode(array('manure' => $manure));
-
+			if($labor['a'] - $labor['u'] < 0){
+				$this->animal_model->toggle_manure($family_name, $animal_id, $manure);
+				echo json_encode(array('success' => 0, 'manure' => FALSE));
+			}
+			else echo json_encode(array('success' => 1, 'manure' => TRUE));
 		}
-		else echo validation_errors();
+		else echo json_encode(array('success' => 1, 'manure' => FALSE));
+
 	}
 
 	function get_feed_method(){

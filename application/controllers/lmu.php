@@ -79,20 +79,88 @@ class Lmu extends CI_Controller{
 		$query = $this->inventory_model->get_resource($resource_id, $family_name);
 
 		if($query->num_rows() == 0 || $query->row()->quantity < $seed_req){
-			echo json_encode(array('success' => 0));
+			echo json_encode(array('success' => 0, 'fail' => 'seed'));	
 		}
 		else{
-			echo json_encode(array('success' => 1));
+			$this->load->model('family_model');
+			$this->load->model('lmu_model');
+			$lmu_id = $this->input->post('lmu_id');
+			$land_percentage = $this->input->post('land_percentage');
+			$acres = $this->lmu_model->get_acres($lmu_id);
+			$labor = $this->family_model->get_labor();
+
+			if($labor['a'] - ($labor['u'] + ($acres * $land_percentage / 100)) < 0){
+				echo json_encode(array('success' => 0, 'fail' => 'labor'));	
+			}
+			else echo json_encode(array('success' => 1));
 		}
 	}
 
 	function cultivate_crop(){
 		$this->load->model('crop_model');
+		$this->load->model('family_model');
 		$lmu_id = $this->input->post('lmu_id');
 		$crop_id = $this->input->post('crop_id');
 		$field = $this->input->post('field');
 
 		if(!$this->crop_model->cultivate_crop($lmu_id, $crop_id, $field)) echo "DB Error";	
+		
+		$water_check = TRUE;
+		$seed_check = TRUE;
+		$checked = $this->crop_model->get_cultivation($lmu_id, $crop_id, $field);
+
+		if($checked){
+			if($field == 'irrigation'){
+				$water = $this->get_water_status();
+				if($water['a'] - $water['u'] < 0) $water_check = FALSE;
+			}
+			else if($field == 'collect_seeds'){
+				$labor = $this->family_model->get_labor();
+				if($labor['a'] - $labor['u'] < 0){
+					$seed_check = FALSE;
+					if(!$this->crop_model->cultivate_crop($lmu_id, $crop_id, $field)) echo "DB Error";	
+					$checked = FALSE;
+				}
+			}
+		}
+
+		echo json_encode(array('water' => $water_check, 'seed' => $seed_check, 'checked' => $checked));
+	}
+
+	function get_water_status(){
+		$this->load->model('family_model');
+		$this->load->model('crop_model');
+		$this->load->model('lmu_model');
+		$this->load->model('water_model');
+		$this->load->model('inventory_model');
+		$family_name = $this->session->userdata('family_name');
+
+		$family_query = $this->family_model->get_members($family_name);
+		$crop_query = $this->crop_model->get_all_planted_crops($family_name);
+		$water_query = $this->water_model->get_family_water($family_name);
+		$well_query = $this->water_model->get_family_well_water($family_name);
+		$available_water = $this->inventory_model->get_resource_quantity(17, $family_name);
+
+		$num_members = $family_query->num_rows();
+
+		$used_water = $num_members * 8;
+
+		foreach($water_query->result() as $row){
+			$available_water += $row->rate * $row->hours;
+		}
+
+		foreach($well_query->result() as $row){
+			$available_water += $row->pumpingRate * $row->hours;
+		}
+
+		foreach($crop_query->result() as $row){
+			$acres = $this->lmu_model->get_acres($row->lmu_id);
+			if($row->irrigation){
+				$used_water += $acres * $row->land_percentage * 50 / 100;
+			}
+		}
+
+		return(array('u' => $used_water, 'a' => $available_water));
 
 	}
 

@@ -52,8 +52,8 @@
 
 </div>
 
-<div id="water-error" class="alert alert-block alert-error" style="display:none;">  
-  <a class="close" onclick="$('#error').hide();">X</a>  
+<div id="water_error" class="alert alert-block alert-error span6" style="display:none; position:fixed; bottom:10px;">  
+  <a class="close" onclick="$('#water_error').hide();">X</a>  
   <h4 class="alert-heading">Error!</h4>  
 	<p id="water_error_message"></p>
 </div> 
@@ -78,43 +78,60 @@ $('#methodSelect').change(function () {
 });
 
 $('#button').click(function () {
-	if($('#methodSelect option:selected').val() == 3){
-  	var post = {
-			'lmu_id': <?=$lmu_id?>, 
-			'hours': $('#updatedHours').val()
-		};
-  	$.ajax({
-    	type: "POST",
-	    url: "<?=site_url()?>/water/update_well_hours",
-			data: post,
-	    dataType: "json",
-			success: function(data){
-				update_well();
-    	}
-		});
-	}
-	else{
-  	var post = {
-			'method_id': $('#methodSelect option:selected').val(), 
-			'hours': $('#updatedHours').val()
-		};
-  	$.ajax({
-    	type: "POST",
-	    url: "<?=site_url("/water/update_method")?>",
-			data: post,
-	    dataType: "json",
-			success: function(data){
-				update();
-    	}
-		});
-	}
+  $.ajax({
+    type: "POST",
+		url: "<?=site_url()?>/water/check_hours",
+		data: "hours=" + $('#updatedHours').val(),
+		dataType: "json",
+		success: function(data){
+			if(data.success == 1){
+				if($('#methodSelect option:selected').val() == 3){
+			  	var post = {
+						'lmu_id': <?=$lmu_id?>, 
+						'hours': $('#updatedHours').val()
+					};
+			  	$.ajax({
+			    	type: "POST",
+				    url: "<?=site_url()?>/water/update_well_hours",
+						data: post,
+				    dataType: "json",
+						success: function(data){
+							update_well();
+			    	}
+					});
+				}
+				else{
+			  	var post = {
+						'method_id': $('#methodSelect option:selected').val(), 
+						'hours': $('#updatedHours').val()
+					};
+			  	$.ajax({
+			    	type: "POST",
+				    url: "<?=site_url("/water/update_method")?>",
+						data: post,
+				    dataType: "json",
+						success: function(data){
+							update();
+			    	}
+					});
+				}
+			}
+			else{
+				if(data.fail == 'form')
+					$('#water_error_message').text("Please enter a numerical value.");
+				else
+					$('#water_error_message').text("You don't have enough family members to start this task.  Adjust your other management decisions to release a family member's time");
+					$('#water_error').show("slide", { direction: "down" }, 'fast');
+			}
+		}
+	});
 });
 
 $('#buy_well').click(function () {
 	$('#water-error').hide();
 	if(well == $('#well_select option:selected').val()){
 		$('#water_error_message').text("The well is already of this type.");
-		$('#water-error').show();
+		$('#water_error').show("slide", { direction: "down" }, 'fast');
 	}
 	else{
 	  var post = {
@@ -133,7 +150,7 @@ $('#buy_well').click(function () {
 				}
 				else{
 					$('#water_error_message').text("You do not have the funds to upgrade to this well");
-					$('#water-error').show();
+					$('#water_error').show("slide", { direction: "down" }, 'fast');
 				}
  	   }
 	  });

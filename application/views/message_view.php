@@ -1,4 +1,4 @@
-<script src="<?php echo base_url();?>/application/includes/js/raphael.js"></script>
+<script src="<?php echo base_url('/includes/js/raphael.js');?>"></script>
 
 	<?php
 		$m = $message->row();

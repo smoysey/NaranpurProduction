@@ -26,6 +26,10 @@ class Lmu_model extends CI_Model{
 		return($this->db->get('lmu'));
 	}
 
+	function get_maps(){
+		return($this->db->get('maps'));
+	}
+
 	function get_lmu_type($lmu_id){
 		$this->db->select('type');
 		$this->db->where('id', $lmu_id);

@@ -6,7 +6,7 @@ class Discussion_model extends CI_Model {
       	                  'subject' => $this->input->post('subject'),
         	                'content' => $this->input->post('content')
 												 );
-		$this->db->insert('discussion', $insert_topic);
+		return($this->db->insert('discussion', $insert_topic));
 	}	
 
 	function submit_comment(){
@@ -16,8 +16,7 @@ class Discussion_model extends CI_Model {
 													'comment' => $this->input->post('content')
 												 );
 		$this->db->insert('comments', $insert_topic);
-		$diss_id = $this->input->post('diss_id');
-		return $diss_id;
+		return($this->input->post('diss_id'));
 	}
 
 	function get_all_topics() {

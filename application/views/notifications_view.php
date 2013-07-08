@@ -27,35 +27,33 @@
   $('#notsLink').click(function () 
   {
     $.ajax({
-      url: "<?=site_url()?>/family/get_notifications", 
-      data: "",
+      url: "<?=site_url('/family/get_notifications')?>", 
 			dataType: 'json',
       success: function(data)
       {
 				$('#nots').empty();
-				for(var i = 0; i < data['nots'].length; i++){
+				for(var i = 0; i < data.length; i++){
 						var notification = "";
-						if(data['nots'][i].read == 1) notification += '<tr id="' + data['nots'][i].id + '">';
-						else notification += '<tr class="info" id="' + data['nots'][i].id + '">';
-						if(data['nots'][i].urgent == 1)	notification += '<td><i class="icon-warning-sign"></i></td>';
+						if(data[i].seen == 1) notification += '<tr>';
+						else notification += '<tr class="info">';
+						if(data[i].urgent == 1)	notification += '<td><i class="icon-warning-sign"></i></td>';
 						else notification += '<td></td>';
-						notification += '<td>' + data['nots'][i].content + '</td>';
-						notification += '<td>' + data['nots'][i].timestamp + '</td>';
-						notification += '<td><i class="icon-trash" style="cursor:pointer" data-id="' + data['nots'][i].id + '"></i></td>';
+						notification += '<td>' + data[i].content + '</td>';
+						notification += '<td>' + data[i].timestamp + '</td>';
+						notification += '<td><i id="' + data[i].id + '" class="icon-trash" style="cursor:pointer" data-id="' + data[i].id + '"></i></td>';
 						notification += '</tr>';
 						$('#nots').append(notification);
+						$('#'+data[i].id).click(function () {
+							$(this).closest('tr').remove();
+    					$.ajax({
+							type: "POST",
+      				url: "<?=site_url('family/delete_notification')?>", 
+							data: "id=" + $(this).data('id'),
+							dataType: 'json',
+      				success: function(data){}
+						});
+					});
 				}
-				
-				var icon = (data['prefs'].win == 1) ? 'icon-ok' : 'icon-remove';
-				$('#win').addClass(icon);
-				$('#win').data('bool', data['prefs'].win);
-				icon = (data['prefs'].bid == 1) ? 'icon-ok' : 'icon-remove';
-				$('#bid').addClass(icon);
-				$('#bid').data('bool', data['prefs'].bid);
-				icon = (data['prefs'].message == 1) ? 'icon-ok' : 'icon-remove';
-				$('#message').addClass(icon);
-				$('#message').data('bool', data['prefs'].message);
-
       } 
     });
   }); 

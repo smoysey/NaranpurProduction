@@ -50,10 +50,9 @@ class Family extends CI_Controller {
 
 		$family_name = $this->session->userdata('family_name');
 		$this->load->model('notifications_model');
-		$nots = $this->notifications_model->get_notifications($family_name);
+		$query = $this->notifications_model->get_notifications($family_name);
 		$this->notifications_model->clear_notifications($family_name);
-		$prefs = $this->notifications_model->get_preferences($family_name);
-		echo json_encode(array('nots' => $nots->result_array(), 'prefs' => $prefs->result_array()));
+		echo json_encode($query->result_array());
 	}
 
 	function delete_notification(){
@@ -69,6 +68,7 @@ class Family extends CI_Controller {
 		$this->load->model('lmu_model');
 		$this->load->model('water_model');
 		$this->load->model('animal_model');
+		$this->load->model('inventory_model');
 		$family_name = $this->session->userdata('family_name');
 
 		$family_query = $this->family_model->get_members($family_name);
@@ -76,15 +76,17 @@ class Family extends CI_Controller {
 		$water_query = $this->water_model->get_family_water($family_name);
 		$well_query = $this->water_model->get_family_well_water($family_name);
 		$animal_query = $this->animal_model->get_family_animals($family_name);
+		$available_grain = $this->inventory_model->get_resource_quantity(14, $family_name);
+		$available_milk = $this->inventory_model->get_resource_quantity(3, $family_name);
+		$available_water = $this->inventory_model->get_resource_quantity(17, $family_name);
 
 		$num_members = $family_query->num_rows();
 
 		$available_labor = 0;
 		$used_labor = 0;
-		$grain = $num_members * 300;
-		$milk = $num_members * 50;
+		$used_grain = $num_members * 300;
+		$used_milk = $num_members * 50;
 		$used_water = $num_members * 8;
-		$available_water = 0;
 
 		foreach($water_query->result() as $row){
 			$available_water += $row->rate * $row->hours;
@@ -122,8 +124,10 @@ class Family extends CI_Controller {
 		}
 
 		$status = array(
-			'grain' => $grain,
-			'milk' => $milk,
+			'used_grain' => $used_grain,
+			'available_grain' => $available_grain,
+			'used_milk' => $used_milk,
+			'available_milk' => $available_milk,
 			'used_water' => $used_water,
 			'available_water' => $available_water,
 			'used_labor' => $used_labor,
@@ -151,11 +155,9 @@ class Family extends CI_Controller {
 
 	function validate_credentials(){
 		$this->load->model('family_model');
-		if($this->family_model->validate()){
-			$this->session->set_userdata($this->family_model->get_session_data());
-			redirect('dashboard');
-		}
-		else redirect('family');
+		$result = $this->family_model->validate();
+		if($result) $this->session->set_userdata($this->family_model->set_session_data());
+		echo json_encode(array('success' => $result));
 	}
 
 	function create_family(){

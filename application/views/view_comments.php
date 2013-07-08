@@ -83,6 +83,7 @@
 					<div><h5><?=$entry['name'];?></h5></div>
 				</td>
 				<td class="span8">
+					<div id="comment_icon"></div>
 					<p><?=$entry['comment'];?></p>
 				</td>
 				<td class="span2">
@@ -130,7 +131,7 @@ $(document).ready(function() {
 	var sub_icon = Raphael('sub', 40, 40);
 	sub_icon.path(subject).attr({"fill": "#333"});
 
-	var elements = document.querySelectorAll('#comment');
+	var elements = document.querySelectorAll('#comment_icon');
 	for (i = 0; i < elements.length; i++) {
 	    paper = Raphael(elements[i], 30, 30)
 	    paper.path(bubble).attr({"fill": "#333", transform: "s.75"})

@@ -19,7 +19,7 @@ class Crop_model extends CI_Model{
 
 	function get_planted_crops($lmu_id){
 		$query = $this->db->query("
-			SELECT crop. * , available_crop. * , resource.name
+			SELECT crop.* , available_crop.* , resource.name
 			FROM crop
 			LEFT JOIN available_crop ON available_crop.id = crop.crop_id
 			LEFT JOIN resource ON available_crop.resource_id = resource.id
@@ -31,7 +31,7 @@ class Crop_model extends CI_Model{
 
 	function get_available_crops($lmu_id){
 		return($this->db->query("
-			SELECT available_crop. * , resource.name
+			SELECT available_crop.* , resource.name
 			FROM available_crop
 			LEFT JOIN resource ON resource.id = available_crop.resource_id
 			WHERE available_crop.id NOT 
@@ -49,6 +49,13 @@ class Crop_model extends CI_Model{
    		SET $field  = !$field
  			WHERE lmu_id = $lmu_id AND crop_id = $crop_id
 		"));
+	}
+
+	function get_cultivation($lmu_id, $crop_id, $field){
+		$this->db->select($field);
+		$this->db->where('lmu_id', $lmu_id);
+		$this->db->where('crop_id', $crop_id);
+		return($this->db->get('crop')->row()->$field);
 	}
 
 	function get_all_planted_crops($family_name){

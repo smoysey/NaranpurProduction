@@ -1,4 +1,4 @@
-<form id="buy_form" class="horizontal" action="<?php echo site_url("/store/buy");?>" onsubmit="return(buyCal());"method="POST"> 
+<form id="buy_form" class="horizontal" action="<?php echo site_url("/store/buy");?>" onsubmit="return(buyCal());" method="POST"> 
 
 	<div class="control-group">
 		<select id="buyItemSelect" name="buyItem">
@@ -16,7 +16,7 @@
 	</div>
 
 	<div class="control-group">
-		<button class="btn btn-primary">Buy</button>
+		<button id="buyButton" class="btn btn-primary">Buy</button>
 	</div>
 
 	<div class="control-group">
@@ -29,13 +29,19 @@
 
 </form>
 
-<div id="error" class="alert alert-blocki alert-error" style="display:none;">  
+<div id="error" class="alert alert-block alert-error" style="display:none;">  
   <a class="close" onclick="$('#error').hide()">X</a>  
   <h4 class="alert-heading">Error!</h4>  
 	<p id="error_message"></p>
 </div> 
 
 <script>
+
+$(document).ready(function() {
+	$('#buyQuantitySelectBox').val(1);
+	$('#buyButton').removeAttr("disabled");
+});
+
 var buyPrice = $('#buyItemSelect option:selected').data('price');
 var buyQuantity = 1;
 buyCal();
@@ -69,16 +75,28 @@ function buyCal(){
 	buyAvailable.value = cash - (buyPrice * buyQuantity);
 	buyAvailable.value = "Updated Cash: $" + buyAvailable.value;
 
-	if(cash - (buyPrice * buyQuantity) > 0){
-		$('#error').hide();
-		$('#quantity_box').removeClass("error");
-		return(true);
+	if(isNaN(buyQuantity) == true || buyQuantity == "" || buyQuantity < 1){
+		$('#buyButton').attr("disabled", "disabled");
+		$('#error_message').text("Please enter a valid number.");
+		$('#error').show();
+		return(false);
 	}
-	else{
-		$('#quantity_box').addClass("error");
+	else if(buyQuantity > $('#buyItemSelect option:selected').data('quantity')){
+		$('#buyButton').attr("disabled", "disabled");
+		$('#error_message').text("The store does not have the Inventory to support this transaction.");
+		$('#error').show();
+		return(false);
+	} 
+	else if(cash - (buyPrice * buyQuantity) < 0){
+		$('#buyButton').attr("disabled", "disabled");
 		$('#error_message').text("You do not have the funds to buy this.");
 		$('#error').show();
 		return(false);
+	}
+	else{
+		$('#error').hide();
+		$('#buyButton').removeAttr("disabled");
+		return(true);
 	}
 }
 

@@ -25,14 +25,14 @@
 					<td id="wu" class="text-error"></td>
 				</tr>
 				<tr>
-					<th>Grain</th>
-					<td></td>
-					<td id="gr" class="text-error"></td>
+					<th>Food</th>
+					<td id="ga" class="text-success"></td>
+					<td id="gu" class="text-error"></td>
 				</tr>
 				<tr>
 					<th>Milk</th>
-					<td></td>
-					<td id="mr" class="text-error"></td>
+					<td id="ma" class="text-success"></td>
+					<td id="mu" class="text-error"></td>
 				</tr>
 			</tbody>
 		</table>
@@ -51,12 +51,14 @@
 			dataType: 'json',
       success: function(data)
       {
-				$('#gr').text(data.grain);
-				$('#mr').text(data.milk);
-				$('#wu').text(data.used_water);
+				$('#ga').text(data.available_grain);
+				$('#gu').text(data.used_grain);
+				$('#ma').text(data.available_milk);
+				$('#mu').text(data.used_milk);
 				$('#wa').text(data.available_water);
-				$('#lu').text(data.used_labor);
+				$('#wu').text(data.used_water);
 				$('#la').text(data.available_labor);
+				$('#lu').text(data.used_labor);
       } 
     });
   }); 

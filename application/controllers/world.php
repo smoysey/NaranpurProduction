@@ -2,8 +2,10 @@
 Class World extends CI_Controller{
 	function index(){
 		$this->load->model('lmu_model');
-		$query = $this->lmu_model->get_lmus(); 
-		$data['lmu_list'] = $query;
+		$lmu_query = $this->lmu_model->get_lmus(); 
+		$map_query = $this->lmu_model->get_maps(); 
+		$data['map_list'] = $map_query;
+		$data['lmu_list'] = $lmu_query;
 		$data['family_name'] = $this->session->userdata('family_name');
 		$data['content'] = 'worldview';
 		$this->load->view('includes/template', $data);

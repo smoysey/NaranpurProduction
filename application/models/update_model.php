@@ -19,8 +19,8 @@ class Update_model extends CI_Model{
 		    WHERE update_type = 'mess' AND family_name = '$family_name'
 			) AS mess, (
 		    SELECT COUNT(*)
-		    FROM updates
-		    WHERE update_type = 'notif' AND family_name = '$family_name'
+		    FROM notification
+		    WHERE seen = 0 AND family_name = '$family_name'
 			) AS notif, (
 		    SELECT COUNT(*)
 		    FROM updates

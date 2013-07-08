@@ -29,20 +29,19 @@ Class Discussion extends CI_Controller{
 		$data['content'] = 'view_comments';
 		$this->load->view('includes/template', $data);
 	}
-	
-	function submit(){
+
+	function submit_discussion(){
 		$this->load->library('form_validation');
 		$this->form_validation->set_rules('subject', 'Subject', 'trim|required|max_lenth[200]');
 		$this->form_validation->set_rules('content', 'Content', 'trim|required');
-
 		if($this->form_validation->run()){
 			$this->load->model('Discussion_model');
 			$this->Discussion_model->submit_topic();
-			redirect('discussion');
+			echo json_encode(array('success' => true));
 		}
-		else echo "Form Error";
-
+		else echo json_encode(array('success' => false, 'message' => validation_errors()));
 	}
+	
 	
 	function submit_comment(){
 		$this->load->library('form_validation');
@@ -51,10 +50,9 @@ Class Discussion extends CI_Controller{
 		if($this->form_validation->run()){
 			$this->load->model('Discussion_model');
 			$diss_id=$this->Discussion_model->submit_comment();
-			redirect('discussion/see_comments/'.$diss_id);
+			echo json_encode(array('success' => true));
 		}
-		else echo "Form Error";
-
+		else echo json_encode(array('success' => false, 'message' => validation_errors()));
 	}
 }
 ?>

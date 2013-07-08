@@ -13,7 +13,16 @@ class Dashboard extends CI_Controller{
 	function index(){
 		$data['content'] = 'dashboard_view';
 		$data['name'] = $this->session->userdata('family_name');
-		$data['id'] = $this->session->userdata('family_id');
+		$this->load->view('includes/template', $data);
+	}
+
+	function reports(){
+		$data['content'] = 'reports_view';
+		$this->load->view('includes/template', $data);
+	}
+
+	function help(){
+		$data['content'] = 'help_view';
 		$this->load->view('includes/template', $data);
 	}
 

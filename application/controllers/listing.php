@@ -114,16 +114,20 @@ class Listing extends CI_Controller{
 		$message = $this->input->post('message');
 		$family_name = $this->session->userdata('family_name');
 
-		$this->inventory_model->update_resource_quantity(
-			$resource_id,
-			$family_name,
-			-$quantity
-		);
+		$actual_res = $this->inventory_model->get_resource_quantity($resource_id, $family_name);
+		if($actual_res < $quantity) echo "You do not have the inventory to process this transaction.";
+		else{
+			$this->inventory_model->update_resource_quantity(
+				$resource_id,
+				$family_name,
+				-$quantity
+			);
 
-		if($this->listing_model->create_listing($resource_id, $quantity, $family_name, $message)){
-			redirect('listing');
+			if($this->listing_model->create_listing($resource_id, $quantity, $family_name, $message)){
+				redirect('listing');
+			}
+			else echo "Database Error";
 		}
-		else echo "Database Error";
 	}
 
 	function accept_bid(){

@@ -35,16 +35,20 @@ class Store extends CI_Controller{
 
 			$world_res = $this->resource_model->get_resource($resource_id);
 			$player_res = $this->inventory_model->get_resource($resource_id, $family_name);
+			$player_cash = $this->inventory_model->get_resource(4, $family_name)->row()->quantity;
 
 			$price = $world_res->row()->buyPrice;
 
-			// Update player Cash
-			$this->inventory_model->update_resource_quantity('4', $family_name, - ($price * $quantity));
-			// Update global Resource Quantity
-			$this->resource_model->update_resource_quantity($resource_id, ($world_res->row()->quantity - $quantity));
-			// Update player Resource Quantity
-			$this->inventory_model->update_resource_quantity($resource_id, $family_name, $quantity);
-			redirect('store');
+			if($player_cash < $price * $quantity) echo "You do not have the funds to do this.";
+			else{
+				// Update player Cash
+				$this->inventory_model->update_resource_quantity('4', $family_name, - ($price * $quantity));
+				// Update global Resource Quantity
+				$this->resource_model->update_resource_quantity($resource_id, ($world_res->row()->quantity - $quantity));
+				// Update player Resource Quantity
+				$this->inventory_model->update_resource_quantity($resource_id, $family_name, $quantity);
+				redirect('store');
+			}
 		}
 		else echo "Form Error";
 	
@@ -67,16 +71,19 @@ class Store extends CI_Controller{
 			$world_res = $this->resource_model->get_resource($resource_id);
 			$player_res = $this->inventory_model->get_resource($resource_id, $family_name);
 
-			$price = $world_res->row()->sellPrice;
+			if($player_res->row()->quantity < $quantity) echo "You do not have the inventory to process this transaction.";
+			else{
+				$price = $world_res->row()->sellPrice;
 
-			// Update player Cash
-			$this->inventory_model->update_resource_quantity('4', $family_name, ($price * $quantity));
-			// Update player Resource Quantity
-			$this->inventory_model->update_resource_quantity($resource_id, $family_name, -$quantity);
-			// Update global Resource Quantity
-			$this->resource_model->update_resource_quantity($resource_id, ($world_res->row()->quantity + $quantity));
-
-			redirect('store');
+				// Update player Cash
+				$this->inventory_model->update_resource_quantity('4', $family_name, ($price * $quantity));
+				// Update player Resource Quantity
+				$this->inventory_model->update_resource_quantity($resource_id, $family_name, -$quantity);
+				// Update global Resource Quantity
+				$this->resource_model->update_resource_quantity($resource_id, ($world_res->row()->quantity + $quantity));
+	
+				redirect('store');
+			}
 		}
 	
 		else echo "Form Error";

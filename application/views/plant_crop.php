@@ -32,7 +32,7 @@
 	</form>
 <?php } ?>
 
-<div id="error" class="alert alert-blocki alert-error" style="display:none;">  
+<div id="error" class="alert alert-blocki alert-error span6" style="display:none; position:fixed; bottom:10px;">  
   <a class="close" onclick="$('#error').hide()">X</a>  
   <h4 class="alert-heading">Error!</h4>  
 	<p id="error_message"></p>
@@ -61,8 +61,8 @@ $("#crop_slider").slider({
 			$("#land_percentage").val(crop);
 			$("#seed_req").val(seed);
       setTimeout("$('#crop_slider').slider('value', crop);", 500);
+			$('#error').hide();
     }
-
 });
 
 $("#crop_id").change(function () {
@@ -73,6 +73,7 @@ $("#crop_id").change(function () {
 	$("#land_percentage").val(0);
 	$('#crop_slider').slider('value', 0);
 	$("#plant_info").text("Plant Percent: " + crop + "% Seed Requirments: " + seed + " kg");
+	$('#error').hide();
 });
 
 function plant(){
@@ -87,13 +88,16 @@ function plant(){
 					$('#plant_form').submit();
 				}
 				else{
-					$('#error_message').text("You do not have sufficent seed to plant this much crop.");
-					$('#error').show();
+					if(data.fail == 'seed')
+						$('#error_message').text("You do not have sufficent seed to plant this much crop.");
+					else
+						$('#error_message').text("You don't have enough family members to start this task.  Adjust your other management decisions to release a family member's time");
+					$('#error').show("slide", { direction: "down" }, 'fast');
 				}
 			}
 			else{
 				$('#error_message').text("You must choose a percentage of your field to plant.");
-				$('#error').show();
+				$('#error').show("slide", { direction: "down" }, 'fast');
 			}
     }
   });

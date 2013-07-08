@@ -10,37 +10,39 @@
 	</select>
 
 	<div id="animalBody" style="display:none;">
+		<div class="row-fluid">
+			<div class="span5">
+				<h4 class="pull-left">Collecting Manure:</h4>
+				<div id="manure" class="pull-right"></div>
+				<input id="manureToggled" type="hidden" name="manure" />
+			</div>
+		</div>
+
 		<ul class="nav nav-list">
-			<li class="nav-header">Animal Policy</li>
-			<li>Collecting Manure: <i id="manure_icon" style="cursor:pointer;"></i></li>
-	 	 	<li id="feed_method"></li>
+			<li class="nav-header">Feeding Method</li>
+			<li>Collecting Manure: <i id="manure_icon" class="icon-ok"></i>
+ 		 	<li id="feed_method"></li>
 			<li id="animal"></li>
 		</ul>
 
 		<ul id="reqs" class="nav nav-list">
 		</ul>
 
-		<ul class="nav nav-list">
-			<li class="nav-header">Update Feeding Method</li>
-			<li>
-				<select id="feedMethodSelect" name="feed_method_id"></select>
-				<a style="display:none;" id="updateFeedMethod" class="btn pull-right">Update</a>
-			</li>
-		</ul>
+		<select id="feedMethodSelect" name="feed_method_id"></select>
+		</br>
+		<a style="display:none;" id="updateFeedMethod" class="btn btn-primary">Update</a>
+
 	</div>
 
 </form>
 
-<div id="manure_error" class="alert alert-block alert-error span6" style="display:none; position:fixed; bottom:10px;">
-	<a class="close" onclick="$('#manure_error').hide();">X</a> 
-	<h4 class="alert-heading">Error!</h4>  
-	<p id="manure_error_message"></p>
-</div>
- 
 <script>
+	var paper = Raphael("manure", 30, 30);
+	var check = "M29.548,3.043c-1.081-0.859-2.651-0.679-3.513,0.401L16,16.066l-3.508-4.414c-0.859-1.081-2.431-1.26-3.513-0.401c-1.081,0.859-1.261,2.432-0.401,3.513l5.465,6.875c0.474,0.598,1.195,0.944,1.957,0.944c0.762,0,1.482-0.349,1.957-0.944L29.949,6.556C30.809,5.475,30.629,3.902,29.548,3.043zM24.5,24.5h-17v-17h12.756l2.385-3H6C5.171,4.5,4.5,5.171,4.5,6v20c0,0.828,0.671,1.5,1.5,1.5h20c0.828,0,1.5-0.672,1.5-1.5V12.851l-3,3.773V24.5z";
+	var uncheck = "M26,27.5H6c-0.829,0-1.5-0.672-1.5-1.5V6c0-0.829,0.671-1.5,1.5-1.5h20c0.828,0,1.5,0.671,1.5,1.5v20C27.5,26.828,26.828,27.5,26,27.5zM7.5,24.5h17v-17h-17V24.5z";
 
 $('#animalSelect').change(function () {
-	if($('#animalSelect option:selected').val() == -1){
+	if($('#animalSelect option:selected').text() == ''){
 		$('#animalBody').hide();
 	}
 	else{
@@ -74,7 +76,7 @@ $('#updateFeedMethod').click(function () {
   });
 });
 
-$('#manure_icon').click(function() {
+$('#manure').click(function() {
 	var data = $("#feed_policy").serialize();
 	$.ajax({
     type: 'POST',
@@ -82,18 +84,7 @@ $('#manure_icon').click(function() {
     data: data,
     dataType: 'json',
     success: function(data){
-			if(!data.success){
-				$('#manure_error_message').text("You don't have enough family members to start this task.  Adjust your other management decisions to release a family member's time");
-				$('#manure_error').show("slide", { direction: "down" }, 'fast');
-			}
-			if(data.manure){
-				$('#manure_icon').removeClass('icon-remove');
-				$('#manure_icon').addClass('icon-ok');
-			}
-			else{
-				$('#manure_icon').removeClass('icon-ok');
-				$('#manure_icon').addClass('icon-remove');
-			}
+			updateManureCSS(data.manure);
 		}
 	});
 });
@@ -114,6 +105,13 @@ function populateMethods(){
   });
 }
 
+function updateManureCSS(manure){
+	$('#manureToggled').val(manure);
+	paper.clear();
+	if(manure == 1)	paper.path(check).attr({"fill": "#333"});
+	else paper.path(uncheck).attr({"fill": "#333"});
+}
+
 function updatePolicy(){
 
 	$.ajax({
@@ -122,16 +120,9 @@ function updatePolicy(){
     data: 'animal_id=' + $('#animalSelect option:selected').val(),
     dataType: 'json',
     success: function(data){
-			$('#feed_method').text('Feeding Method: ' + data[0].method);
+			$('#feed_method').text('Method Name: ' + data[0].method);
 			$('#animal').text('Animal: ' + data[0].animal);
-			if(data[0].manure == 0){
-				$('#manure_icon').removeClass('icon-ok');
-				$('#manure_icon').addClass('icon-remove');
-			}
-			else{
-				$('#manure_icon').removeClass('icon-remove');
-				$('#manure_icon').addClass('icon-ok');
-			}
+			updateManureCSS(data[0].manure);
 
 			$.ajax({
     		type: 'POST',

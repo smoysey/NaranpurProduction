@@ -54,10 +54,19 @@ class Animal_model extends CI_Model{
 		return($this->db->update('animal_policy', array('feed_method_id' => $feed_method_id)));
 	}
 
-	function update_manure($family_name, $animal_id, $collect_manure){
+	function toggle_manure($family_name, $animal_id, $collect_manure){
+		return($this->db->query("
+			UPDATE animal_policy
+   		SET collect_manure  = !collect_manure
+ 			WHERE family_name = '$family_name' AND animal_id = $animal_id
+		"));
+	}
+
+	function get_manure($family_name, $animal_id){
+		$this->db->select('collect_manure');
 		$this->db->where('family_name', $family_name);
 		$this->db->where('animal_id', $animal_id);
-		return($this->db->update('animal_policy', array('collect_manure' => $collect_manure)));
+		return($this->db->get('animal_policy')->row()->collect_manure);
 	}
 
 	function create_animal_policy($family_name, $animal_id, $feed_method_id = 7){

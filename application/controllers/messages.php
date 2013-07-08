@@ -54,6 +54,9 @@ class Messages extends CI_Controller{
 	}
 
 	function compose(){
+		$this->load->model('family_model');
+		$family_name = $this->session->userdata('family_name');
+		$data['families'] = $this->family_model->get_all_families($family_name);
 		$data['content'] = 'compose';
 		$this->load->view('includes/template', $data);
 	}
@@ -79,16 +82,20 @@ class Messages extends CI_Controller{
 																						 $body)){
 				$this->load->model('update_model');
 				$this->update_model->create_notification($reciever_name, 'mess');
-				redirect('messages');
+				echo json_encode(array('success' => true));
 			}
-			else{	echo "Send Error.";	}
+			else{	echo "Fatal Database Error Check Database Structure and Model Code.";	}
 		}
-		else{	echo "Form Error.";	}
+		else echo json_encode(array('success' => false, 'message' => validation_errors()));
 	}
 
 	function valid_family($family_name){
 		$this->load->model('family_model');
-		return($this->family_model->get_family($family_name)->num_rows == 1);
+		if($this->family_model->get_family($family_name)->num_rows == 1) return(true);
+		else{
+			$this->form_validation->set_message('valid_family', 'There is no Family by this Name.');
+			return(false);
+		}
 	}
 
 	function view_message($id){

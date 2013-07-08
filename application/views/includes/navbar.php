@@ -21,10 +21,6 @@
 											<i class="icon-bullhorn"></i> Alerts <span id='notif' class="badge badge-info pull-right" style="display:none;">
 										</a>
 									</li>
-									<li class="divider"></li>
-									<li>
-				     				<a href="<?php echo site_url("/family/logout");?>"><i class="icon-share"></i> Logout</a>
-									</li>
 							</ul>
 					</li>
 						<li class="divider-vertical"></li>
@@ -70,13 +66,26 @@
 
 						<li class="divider-vertical"></li>
 
+     			<li class="dropdown">
+						<a class="dropdown-toggle" data-toggle="dropdown" href=""><i class="icon-cog"></i> Admin <b class="caret"></b></a>
+							<ul class="dropdown-menu span3">
+								<li><a href="<?php echo site_url("/dashboard/help");?>"><i class="icon-question-sign"></i> Help</a></li>
+									<li class="divider"></li>
+								<li>
+									<a href="<?php echo site_url("/dashboard/reports");?>">
+										<i class="icon-folder-open"></i> Reports</a>
+								</li>
+								<li class="divider"></li>
+								<li>
+				     			<a href="<?php echo site_url("/family/logout");?>"><i class="icon-share"></i> Logout</a>
+								</li>
+							</ul>
+					</li>
+
+						<li class="divider-vertical"></li>
+
           <li>
-						<p class="navbar-text">
-							<strong id="year"></strong>
-							<strong id="month"></strong>
-							<strong id="week"></strong>
-							<strong id="day"></strong>
-						</p>
+						<a disabled=disabled; style="cursor:default;"><i class="icon-calendar"></i> <strong id="date"></strong></a>
           </li>
 
 				</ul>
@@ -119,10 +128,7 @@
 		dataType: 'json',
     success: function(data)
     {
-			$('#year').text("Year: " + data[0].year);
-			$('#month').text("Month: " + data[0].month);
-			$('#week').text("Week: " + data[0].week);
-			$('#day').text("Day: " + data[0].day);
+			$('#date').text(data[0].month + '/' + data[0].day + '/' + data[0].year);
     } 
   });
 

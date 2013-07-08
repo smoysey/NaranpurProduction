@@ -97,7 +97,7 @@ class Water extends CI_Controller{
 		$this->load->library('form_validation');
 
 		$this->form_validation->set_rules('lmu_id', 'LMU ID', 'trim|required');
-		$this->form_validation->set_rules('hours', 'Hours', 'trim|required');
+		$this->form_validation->set_rules('hours', 'Hours', 'trim|required|numeric');
 
 		if($this->form_validation->run()){
 			$this->load->model('water_model');
@@ -110,6 +110,24 @@ class Water extends CI_Controller{
 			echo json_encode(array('success' => 1));
 		}
 		else echo validation_errors();
+	}
+
+	function check_hours(){
+		$this->load->library('form_validation');
+		$this->load->model('family_model');
+		$labor = $this->family_model->get_labor();
+		$hours = $this->input->post('hours');
+		$this->form_validation->set_rules('hours', 'Hours', 'trim|required|numeric');
+
+		if($this->form_validation->run()){
+			if($hours != 0 && $labor['a']  - ($labor['u'] + $hours) < 0){
+				echo json_encode(array('success' => 0, 'fail' => 'labor'));	
+			}
+			else echo json_encode(array('success' => 1));
+		}
+		else{
+			echo json_encode(array('success' => 0, 'fail' => 'form'));
+		}
 	}
 
 }

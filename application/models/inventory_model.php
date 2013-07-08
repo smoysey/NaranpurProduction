@@ -49,6 +49,14 @@ class Inventory_model extends CI_Model{
 		return($this->db->get('inventory'));
 	}
 
+	function get_resource_quantity($resource_id, $family_name){
+		$this->db->where('family_name', $family_name);
+		$this->db->where('resource_id', $resource_id);
+		$query = $this->db->get('inventory');
+		if($query->num_rows() == 0) return(0);
+		else return($query->row()->quantity);
+	}
+
 	function check_resource($resource_id, $family_name, $quantity){
 		$query = $this->get_resource($resource_id, $family_name);
 		if($query->num_rows() == 0) return(FALSE);
@@ -60,7 +68,7 @@ class Inventory_model extends CI_Model{
 		if($query->num_rows() == 0 && $quantity > 0){
 			return($this->add_resource($resource_id, $family_name, $quantity));
 		}
-		else if(($query->row()->quantity + $quantity) == 0){
+		else if(($query->row()->quantity + $quantity) == 0 && $resource_id != 4){
 			$this->db->where('id', $resource_id);
 			$res_query = $this->db->get('resource');
 			if($res_query->row()->category == 'Livestock'){

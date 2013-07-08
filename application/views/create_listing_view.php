@@ -28,16 +28,45 @@
 			</div>
 			<div class="control-group">
 				<div class="controls">
-					<button type="submit" class="btn btn-primary"><i class="icon-list"></i> Create Listing</button>
+					<button id="list_button" type="submit" class="btn btn-primary"><i class="icon-list"></i> Create Listing</button>
 				</div>
 			</div>
 		</form>
   </div>
+
+	<div id="list_error" class="alert alert-block alert-error span6" style="display:none; position:fixed; bottom:10px;">  
+	 	<a class="close" onclick="$('#list_error').hide()">X</a>  
+		<h4 class="alert-heading">Error!</h4>  
+		<p id="list_error_message"></p>
+	</div> 
 </div>
 
+
 <script>
-$('#resource_select').change(function () {
-	$('#quantity_select').val(1);
-	$('#quantity_select').attr("max", $('option:selected', this).data("quantity"));
+$(function() {
+	$('#resource_select').change(function () {
+		$('#quantity_select').val(1);
+		$('#quantity_select').attr("max", $('option:selected', this).data("quantity"));
+		$('#list_error').hide();
+		$('#list_button').removeAttr("disabled");
+	});
+
+	$('#quantity_select').change(function () {
+		if(isNaN($('#quantity_select').val()) == true || $('#quantity_select').val() == "" || $('#quantity_select').val() < 1){
+			$('#list_button').attr("disabled", "disabled");
+			$('#list_error_message').text("You must enter a valid number.");
+			$('#list_error').show("slide", { direction: "down" }, 'fast');
+		}
+		else if(parseInt($('#quantity_select').val()) > parseInt($('#quantity_select').attr('max'))){
+			$('#list_button').attr("disabled", "disabled");
+			$('#list_error_message').text("You do not have sufficent inventory for this listing.");
+			$('#list_error').show("slide", { direction: "down" }, 'fast');
+		}
+		else{
+			$('#list_error').hide();
+			$('#list_button').removeAttr("disabled");
+		}
+	});
 });
+
 </script>

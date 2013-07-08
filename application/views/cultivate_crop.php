@@ -4,25 +4,31 @@
 		<div id="<?=$ac->id;?>" style="display:none;">
 		<table  class="table table-striped table-condensed">
 			<thead>
-				<tr>
-					<th>Irrigation</th>
-					<th>Fertilizer</th>
-					<th>Pesticide</th>
-					<th>Collect Seed</th>
+				<tr data-lmu_id="<?=$ac->lmu_id;?>" data-crop_id="<?=$ac->id;?>">
+					<th data-field="irrigation">
+						Irrigation
+						<i style="cursor:pointer;" class="pull-right <?php echo ($ac->irrigation) ? 'icon-ok' : 'icon-remove';?>"></i>
+					</th>
+					<th data-field="fertilizer">
+						Fertilizer
+						<i style="cursor:pointer;" class="pull-right <?php echo ($ac->fertilizer) ? 'icon-ok' : 'icon-remove';?>"></i>
+					</th>
+					<th data-field="pesticide">
+						Pesticide
+						<i style="cursor:pointer;" class="pull-right <?php echo ($ac->pesticide) ? 'icon-ok' : 'icon-remove';?>"></i>
+					</th>
+					<th data-field="collect_seeds">
+						Collect Seed
+						<i style="cursor:pointer;" class="pull-right <?php echo ($ac->collect_seeds) ? 'icon-ok' : 'icon-remove';?>"></i>
+					</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr>
-					<td id="irr<?=$ac->crop_id;?>" data-bool="<?=$ac->irrigation;?>"></td>
-					<td id="fer<?=$ac->crop_id;?>" data-bool="<?=$ac->fertilizer;?>"></td>
-					<td id="pes<?=$ac->crop_id;?>" data-bool="<?=$ac->pesticide;?>"></td>
-					<td id="cts<?=$ac->crop_id;?>" data-bool="<?=$ac->pesticide;?>"></td>
-				</tr>
-				<tr>
 					<td>Requires: <?=$ac->irr * $ac->land_percentage * $acres / 100;?> Water</td>
 					<td>Requires: <?=$ac->frr * $ac->land_percentage * $acres / 100;?> Fertilizer</td>
 					<td>Requires: <?=$ac->prr * $ac->land_percentage * $acres / 100;?> Pesticide</td>
-					<td>Requires: <?=$ac->prr * $ac->land_percentage * $acres / 100 * .5;?> Labor</td>
+					<td>Requires: <?=$ac->land_percentage * $acres / 100 * .5;?> Labor</td>
 				</tr>
 			</tbody>	
 		</table>
@@ -70,76 +76,53 @@
 	<?php } ?> 
 </div>
 
+
+<div id="cult_warn" class="alert alert-block span6" style="display:none; position:fixed; bottom:10px;">
+	<a class="close" onclick="$('#cult_warn').hide();">X</a> 
+	<h4 class="alert-heading">Warning!</h4>  
+	<p id="cult_warn_message"></p>
+</div> 
+
+
+<div id="seed_error" class="alert alert-block alert-error span6" style="display:none; position:fixed; bottom:10px;">
+	<a class="close" onclick="$('#seed_error').hide();">X</a> 
+	<h4 class="alert-heading">Error!</h4>  
+	<p id="seed_error_message"></p>
+</div> 
+
+
 <script>
-	var fer = Array();
-	var pes = Array();
-	var irr = Array();
-	var cts = Array();
 
-	var check = "M29.548,3.043c-1.081-0.859-2.651-0.679-3.513,0.401L16,16.066l-3.508-4.414c-0.859-1.081-2.431-1.26-3.513-0.401c-1.081,0.859-1.261,2.432-0.401,3.513l5.465,6.875c0.474,0.598,1.195,0.944,1.957,0.944c0.762,0,1.482-0.349,1.957-0.944L29.949,6.556C30.809,5.475,30.629,3.902,29.548,3.043zM24.5,24.5h-17v-17h12.756l2.385-3H6C5.171,4.5,4.5,5.171,4.5,6v20c0,0.828,0.671,1.5,1.5,1.5h20c0.828,0,1.5-0.672,1.5-1.5V12.851l-3,3.773V24.5z";
-	var uncheck = "M26,27.5H6c-0.829,0-1.5-0.672-1.5-1.5V6c0-0.829,0.671-1.5,1.5-1.5h20c0.828,0,1.5,0.671,1.5,1.5v20C27.5,26.828,26.828,27.5,26,27.5zM7.5,24.5h17v-17h-17V24.5z";
-
-	<?php
-		$js_array = json_encode($planted_crops->result_array());
-		echo "var crops = ". $js_array . ";\n";
-	?>
-
-	$(document).ready(function() {
-		for(var x = 0; x < crops.length; x++){
-			(function(x) {
-				fer[x] = Raphael('fer'+crops[x]['crop_id'], 30, 30);
-				pes[x] = Raphael('pes'+crops[x]['crop_id'], 30, 30);
-				irr[x] = Raphael('irr'+crops[x]['crop_id'], 30, 30);
-				cts[x] = Raphael('cts'+crops[x]['crop_id'], 30, 30);
-
-				cultivate('fer'+crops[x]['crop_id'], crops[x]['fertilizer'], fer[x]);
-				cultivate('pes'+crops[x]['crop_id'], crops[x]['pesticide'], pes[x]);
-				cultivate('irr'+crops[x]['crop_id'], crops[x]['irrigation'], irr[x]);
-				cultivate('cts'+crops[x]['crop_id'], crops[x]['collect_seeds'], cts[x]);
-
-				$('#fer'+crops[x]['crop_id']).click(function() {
-					flip(crops[x]['lmu_id'], crops[x]['crop_id'], 'fertilizer');
-					$('#fer'+crops[x]['crop_id']).data('bool', !$('#fer'+crops[x]['crop_id']).data('bool'));
-					cultivate('fer'+crops[x]['crop_id'], $('#fer'+crops[x]['crop_id']).data('bool'), fer[x]);
-				});
-				$('#pes'+crops[x]['crop_id']).click(function() {
-					flip(crops[x]['lmu_id'], crops[x]['crop_id'], 'pesticide');
-					$('#pes'+crops[x]['crop_id']).data('bool', !$('#pes'+crops[x]['crop_id']).data('bool'));
-					cultivate('pes'+crops[x]['crop_id'], $('#pes'+crops[x]['crop_id']).data('bool'), pes[x]);
-				});
-				$('#irr'+crops[x]['crop_id']).click(function() {
-					flip(crops[x]['lmu_id'], crops[x]['crop_id'], 'irrigation');
-					$('#irr'+crops[x]['crop_id']).data('bool', !$('#irr'+crops[x]['crop_id']).data('bool'));
-					cultivate('irr'+crops[x]['crop_id'], $('#irr'+crops[x]['crop_id']).data('bool'), irr[x]);
-				});
-	
-				$('#cts'+crops[x]['crop_id']).click(function() {
-					flip(crops[x]['lmu_id'], crops[x]['crop_id'], 'collect_seeds');
-					$('#cts'+crops[x]['crop_id']).data('bool', !$('#cts'+crops[x]['crop_id']).data('bool'));
-					cultivate('cts'+crops[x]['crop_id'], $('#cts'+crops[x]['crop_id']).data('bool'), cts[x]);
-				});
-
-			})(x);
-		}
-	});
-
-	function cultivate(id, bool, paper){
-		paper.clear();
-		if(bool == 1)	paper.path(check).attr({"fill": "#333"});
-		else paper.path(uncheck).attr({"fill": "#333"});
-	}
-
-	function flip(lmu_id, crop_id, field){
-		var data = {lmu_id: lmu_id, crop_id: crop_id, field: field};;
+	$('i').on('click', function() {	
+		var data = {lmu_id: $(this).closest('tr').data('lmu_id'), crop_id: $(this).closest('tr').data('crop_id'), field: $(this).closest('th').data('field')};
+		var icon = $(this);
   	$.ajax({
 	    type: "POST",
 			url: "<?=site_url()?>/lmu/cultivate_crop",
 			data: data,
 	    dataType: "json",
     	success: function(data){
-				return(true);
+				if(!data['water']){
+					$('#cult_warn').show("slide", { direction: "down" }, 'fast');
+					$('#cult_warn_message').text("You don't have enough water available to irrigate this field, but irrigation will now be applied if water becomes available.");
+				}
+				else $('#cult_warn').hide();
+				if(!data['seed']){
+					$('#seed_error').show("slide", { direction: "down" }, 'fast');
+					$('#seed_error_message').text("You don't have enough family members to start this task.  Adjust your other management decisions to release a family member's time");
+				}
+				else $('#seed_error').hide();
+
+				if(data['checked'] == 1){
+					icon.removeClass('icon-remove');
+					icon.addClass('icon-ok');
+				}
+				else{
+					icon.removeClass('icon-ok');
+					icon.addClass('icon-remove');
+				}
     	}
   	});
-	}
+	});
 
 </script>
